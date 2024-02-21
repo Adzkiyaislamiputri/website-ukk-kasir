@@ -21,8 +21,8 @@
                                     <th>Nama Produk</th>
                                     <th>Harga</th>
                                     <th>Stok</th>
-                            
-                                    <th>opsi</th>
+                                    <th>Terjual</th>
+                                    <th>Opsi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,6 +38,7 @@
                                 <td><?php echo $data['nama_produk']?></td>
                                 <td><?php echo $data['harga']?></td>
                                 <td><?php echo $data['stok']?></td>
+                                <td><?php echo $data['Terjual']?></td>
                                 <td align="center" width="12%"><a href="?page=edit-barang&produk_id=<?= $data['produk_id']; ?>" class="badge badge-primary p-2 edit-data" title="Edit"><i class="fas fa-edit">Edit</i></a> | <a href="?page=hapus-barang&produk_id=<?= $data['produk_id']?>" class="badge badge-danger p-2 delete-data" title='Delete'><i class="">Hapus</i></a> </td>
                                 
                             </tr>
