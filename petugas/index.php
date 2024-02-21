@@ -39,7 +39,7 @@ if ($_SESSION['username']=="") {
 <div class="container-fluid">
   <div class="row content">
     <div class="col-sm-3 sidenav hidden-xs">
-      <h2>Petugas</h2>
+      <h2><?php echo $_SESSION['level'] ; ?></h2>
       <ul class="nav nav-pills nav-stacked">
         <li class="active"><a href="index.php">Dashboard</a></li>
         <li><a href="?page=stok">Stok</a></li>
