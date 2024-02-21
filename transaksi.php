@@ -5,36 +5,52 @@ include("header.php");
 if (isset($_POST['tambah'])) {
     $tanggal = $_POST['tanggal'];
     $nama = $_POST['nama'];
-    $no_meja = $_POST['no_meja'];
-
-    $sql = $koneksi->query("INSERT INTO penjualan (tanggal_penjualan) VALUES ('$tanggal')");
-    $id_transaksi_baru = mysqli_insert_id($koneksi);
-    
-    $sql = $koneksi->query("INSERT INTO pelanggan (pelanggan_id, nama_pelanggan, no_meja) VALUES ('$id_transaksi_baru', '$nama', '$nomeja')");
-    $id_pelanggan_baru = mysqli_insert_id($koneksi);
-    
+    $nomeja = $_POST['nomeja'];
     $menu_jumlah = $_POST['menu'];
     $jumlah_array = $_POST['jumlah'];
+    $stok = true;
+
     foreach ($menu_jumlah as $i => $item) {
-        $item_parts = explode("|", $item);
-        $produk_id = $item_parts[0];
-        $harga = $item_parts[1];
+        $parts = explode("|", $item);
+        $produk_id = $parts[0];
+        $harga = $parts[1];
         $jumlah = $jumlah_array[$i];
 
-        $sql3 = $koneksi->query("INSERT INTO detail penjualan (detail_id, produk_id, jumlah_produk, sub_total) VALUES ('$id_pelanggan_baru', '$produk_id', '$jumlah', '$harga')");
-        $sql4 = $koneksi->query("UPDATE produk SET stok = stok - $jumlah  WHERE produk_id = '$produk_id'");
-        $sql5 = $koneksi->query("UPDATE produk SET Terjual = Terjual + $jumlah WHERE produk_id = '$produk_id'");
+        $sql_stok = $koneksi->query("SELECT stok FROM produk WHERE produk_id = '$produk_id'");
+        $row = $sql_stok->fetch_assoc();
+        $stok_produk = $row['stok'];
+
+        if ($jumlah > $stok_produk) {
+            $stok = false;
+            break;
+        }
     }
+    if ($stok) {
+        $sql = $koneksi->query("INSERT INTO penjualan (tanggal_penjualan) VALUES ('$tanggal')");
+        $id_transaksi_baru = mysqli_insert_id($koneksi);
 
-    header("Location: daftar-transaksi.php");
-    exit();
+        $sql = $koneksi->query("INSERT INTO pelanggan (pelanggan_id, nama_pelanggan, no_meja) VALUES ('$id_transaksi_baru', '$nama', '$nomeja')");
+
+        foreach ($menu_jumlah as $i => $item) {
+            $parts = explode("|", $item);
+            $produk_id = $parts[0];
+            $harga = $parts[1];
+            $jumlah = $jumlah_array[$i];
+
+            $sql3 = $koneksi->query("INSERT INTO detail_penjualan (detail_id, produk_id, jumlah_produk, sub_total) VALUES ('$id_transaksi_baru', '$produk_id', '$jumlah', '$harga')");
+            $sql4 = $koneksi->query("UPDATE produk SET stok = stok - $jumlah  WHERE produk_id = '$produk_id'");
+            $sql5 = $koneksi->query("UPDATE produk SET Terjual = Terjual + $jumlah WHERE produk_id = '$produk_id'");
+        }
+
+        header("Location: daftar-transaksi.php");
+        exit();
+    } else {
+        echo "<script>alert('Maaf, jumlah pesanan melebihi stok yang tersedia. Silakan periksa kembali pesanan Anda.')</script>";
+    }
 }
-
-
 ?>
 
-  
-        <script>
+<script>
             // Fungsi untuk menambahkan input field untuk menu
             function tambahMenu() {
                 var container = document.getElementById("menuContainer");
@@ -42,7 +58,7 @@ if (isset($_POST['tambah'])) {
 
                 newMenuInput.innerHTML = `
                           <div class="">
-                              <label for="menu" class="form-label">Menu</label>
+                              <label for="menu" class="form-label">menu</label>
                               <select id="menu" name="menu[]" class="form-control">
                                 <option>Pilih Menu</option>
                                   <?php
@@ -95,7 +111,7 @@ if (isset($_POST['tambah'])) {
                         </div>
                         <div>
                             <label for="nomeja" class="form-label">No Meja</label>
-                            <input type="number" min="1" class="form-control" id="no_meja" name="no_meja" required>
+                            <input type="number" min="1" class="form-control" id="nomeja" name="nomeja" required>
                         </div>
                         <div id="menuContainer">
                           <div>
@@ -119,9 +135,9 @@ if (isset($_POST['tambah'])) {
                           
                         </div>
 
-                        <button type="button" class="btn btn-warning me-3" onclick="tambahMenu()">Tambah Menu+</button>
+                        <button type="button" class="btn btn-warning me-3" onclick="tambahMenu()">Tambah Menu</button>
 
-                        <button type="submit" name="tambah" class="btn btn-primary">pesan</button>
+                        <button type="submit" name="tambah" class="btn btn-primary">Tambah Pesan</button>
                     </form>
                 </div>            
             </div>
